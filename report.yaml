@@ -1,0 +1,83 @@
+id: report
+type: PageHeaderMenu
+properties:
+  title: Report
+  menu:
+    links: []
+layout:
+  contentGutter: 16 # Set a gutter of 16px between all the cards on the page
+blocks:
+  - id: genre_counts_bar_chart_card
+    type: Card
+    layout:
+      span: 16 # Make the card span 2 thirds of the screen
+    blocks:
+      - id: genre_counts_bar_chart
+        type: AmCharts4XY # AmCharts4XY is used for all charts with x and y axis
+        requests:
+          - id: counts_by_genre
+            type: MongoDBAggregation # MongoDb Aggregation to get the data
+            connectionId: movies_mongodb
+            properties:
+              pipeline:
+                - $match:
+                    type: movie # Match only documents of type 'movie'
+                - $unwind:
+                    path: $genres # Genres is an array, so unwind to create 1 document for every array entry
+                - $group:
+                    _id: $genres # Group data by the genre field
+                    count: 
+                      $sum: 1 # Count the number of documents by summing 1 for every document
+                - $sort:
+                    count: -1 # Sort by descending count 
+        properties:
+          data:
+            _request: counts_by_genre # Attach out request to the chart
+          height: 400
+          titles:
+            - text: Number of Movies per Genre # Add a title
+              fontSize: 18
+              marginBottom: 16
+          xAxes:
+            - type: CategoryAxis # Add a CategoryAxis for the x axis
+              dataFields:
+                category: _id # Add the dataField so the CategoryAxis can determine the categories
+              renderer:
+                grid:
+                  disabled: true # Disable vertical grid lines
+                minGridDistance: 20 # Reduce the minimum grid distance so that more category labels can be shown the x axis
+                labels: # Rotate the labels
+                  contentAlign: right # Align against x axis
+                  rotation: -60
+                  fontSize: 12
+                  verticalCenter: middle # Set the rotation center point
+                  horizontalCenter: right # Set the rotation center point
+          yAxes:
+            - type: ValueAxis # Add a ValueAxis for the y axis
+              title:
+                text: Count # Give the x axis a title
+              renderer:
+                minGridDistance: 20
+          series:
+            - type: ColumnSeries # Create a column series to show columns
+              dataFields:
+                categoryX: _id # Set the category value to the field _id in the data
+                valueY: count # Set the value value to the field count in the data
+              columns:
+                tooltipText: 'Count: {valueY}' # Set a tooltipText
+
+
+  # - id: pie_chart_card
+  #   type: Card
+  #   layout:
+  #     span: 8
+  #   blocks:
+  #     - id: pie_chart
+  #       type: AmCharts4Pie
+  #       properties:
+  #         height: 400
+  # - id: table_card
+  #   type: Card
+  #   blocks:
+  #     - id: table
+  #       type: AgGrid

@@ -1,0 +1,11 @@
+connections:
+  - id: movies_mongodb
+    type: MongoDBCollection
+    properties:
+      databaseName: sample_mflix
+      collection: movies
+      databaseUri:
+        _secret: lowdefy_examples_mdb
+
+pages:
+  - _ref: report.yaml
