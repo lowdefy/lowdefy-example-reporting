@@ -1,11 +1,36 @@
+
+name: Lowdefy Reporting Example
+version: 0.0.6
+licence: MIT
+description: |
+  This example show patterns that can be used to implement a BI report/dashboard.
+
+  It assumes that it is connected to a MongoDB database with the Atlas sample dataset loaded.
+
+# Define all the data connections, in this case the brands and products MongoDB collections
 connections:
-  - id: movies_mongodb
+  - id: movies_mongodb # The connectionId that will be used when defining requests and mutations on our pages
     type: MongoDBCollection
     properties:
-      databaseName: sample_mflix
-      collection: movies
+      databaseName: sample_mflix # The database name
+      collection: movies # The collection name
       databaseUri:
-        _secret: lowdefy_examples_mdb
+        _secret: lowdefy_examples_mdb # The database connection uri that is stored as a secret and accessed using the _secret operator
 
+# Menus used in the app can be listed here
+# By default, the menu with id default, or the first menu defined is used.
+# If no menu is defined, a default menu is created using all the defined pages.
+menus:
+  - id: default
+    links:
+      - id: report # Define the menu link that directs to the report page
+        type: MenuLink
+        pageId: report # Id of the report page
+        properties:
+          title: Report # Title to show on the menu
+          icon: LineChartOutlined
+ 
+# All the pages in the app are listed here
+# Instead of defining the page in the lowdefy.yaml file, it is defined in its own yaml file and referenced here
 pages:
   - _ref: report.yaml
