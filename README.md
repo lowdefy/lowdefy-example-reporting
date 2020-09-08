@@ -1,4 +1,4 @@
-# Lowdefy Admin Example
+# Lowdefy Reporting Example
 
   This example show patterns that can be used to implement a BI report/dashboard.
 
