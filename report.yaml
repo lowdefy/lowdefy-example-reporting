@@ -2,42 +2,109 @@ id: report
 type: PageHeaderMenu
 properties:
   title: Report
-  menu:
-    links: []
 layout:
   contentGutter: 16 # Set a gutter of 16px between all the cards on the page
+
+requests:
+  # Request for the bar and pie charts
+  - id: scores_by_genre
+    type: MongoDBAggregation # MongoDB Aggregation to get the data
+    connectionId: movies_mongodb
+    properties:
+      pipeline:
+        - $unwind:
+            path: $genres # Genres is an array, so unwind to create 1 document for every array entry
+        - $match: # Only look at top 6 genres
+            genres:
+              $in:
+                - Drama
+                - Comedy
+                - Romance
+                - Crime
+                - Thriller
+                - Action
+        - $group:
+            _id: $genres # Group data by the genre field
+              # Calculate the average IMDB, and Rotten Tomatoes viewer and critic ratings for each genre. 
+            viewerRating:
+              $avg: $tomatoes.viewer.rating
+            criticRating:
+              $avg: $tomatoes.critic.rating
+            count: 
+              $sum: 1 # Count the number of documents by summing 1 for every document
+        - $addFields:
+            # Multiply viewerRating by 2 as it is out of 5 not 10.
+            viewerRating:
+              $multiply:
+                - $viewerRating
+                - 2
+        - $sort:
+            count: -1 # Sort by descending count
+
+  # Request for the table
+  - id: top_100_movies
+    type: MongoDBAggregation # MongoDB Aggregation to get the data
+    connectionId: movies_mongodb
+    properties:
+      pipeline:
+        - $match: 
+            tomatoes.critic.numReviews: # Match where there are 20 or more critic reviews
+              $gte: 20
+            tomatoes.viewer.numReviews: # and 100 or more viewer reviews
+              $gte: 100
+            genres: # Only look at top 6 genres
+              $in:
+                - Drama
+                - Comedy
+                - Romance
+                - Crime
+                - Thriller
+                - Action
+        - $project: # Include fields we want to show in the table
+            title: 1
+            year: 1
+            rated: 1
+            viewerRating: # Multiply viewerRating by 2 as it is out of 5 not 10.
+              $multiply:
+                - $tomatoes.viewer.rating
+                - 2
+            criticRating: $tomatoes.critic.rating
+            viewerReviews: $tomatoes.viewer.numReviews
+            criticReviews: $tomatoes.critic.numReviews
+            difference: # Calculate the difference between the critic and viewer scores
+              $abs: # Take the absolute (positive) value
+                $subtract:
+                  - $multiply:
+                      - $tomatoes.viewer.rating
+                      - 2
+                  - $tomatoes.critic.rating
+
+        - $sort:
+            difference: -1 # Sort by biggest difference
+        - $limit: 100 # Only return the first 100 results
+
 blocks:
   - id: genre_counts_bar_chart_card
     type: Card
     layout:
       span: 16 # Make the card span 2 thirds of the screen
     blocks:
+      - id: title # Add a title
+        type: Title
+        properties:
+          content: Comparison of Critic and Viewer Ratings by Genre 
+          level: 4
       - id: genre_counts_bar_chart
         type: AmCharts4XY # AmCharts4XY is used for all charts with x and y axis
-        requests:
-          - id: counts_by_genre
-            type: MongoDBAggregation # MongoDb Aggregation to get the data
-            connectionId: movies_mongodb
-            properties:
-              pipeline:
-                - $match:
-                    type: movie # Match only documents of type 'movie'
-                - $unwind:
-                    path: $genres # Genres is an array, so unwind to create 1 document for every array entry
-                - $group:
-                    _id: $genres # Group data by the genre field
-                    count: 
-                      $sum: 1 # Count the number of documents by summing 1 for every document
-                - $sort:
-                    count: -1 # Sort by descending count 
         properties:
           data:
-            _request: counts_by_genre # Attach out request to the chart
+            _request: scores_by_genre # Use scores_by_genre request for chart data
           height: 400
-          titles:
-            - text: Number of Movies per Genre # Add a title
-              fontSize: 18
-              marginBottom: 16
+          legend:
+            type: Legend # Add legend
+            markers:
+              width: 20 # Make markers smaller
+              height: 20
           xAxes:
             - type: CategoryAxis # Add a CategoryAxis for the x axis
               dataFields:
@@ -55,29 +122,118 @@ blocks:
           yAxes:
             - type: ValueAxis # Add a ValueAxis for the y axis
               title:
-                text: Count # Give the x axis a title
+                text: Rating # Give the x axis a title
               renderer:
                 minGridDistance: 20
           series:
             - type: ColumnSeries # Create a column series to show columns
+              name: Critics Rating
+              fill: '#5B8FF9' # Set column fill color
+              stroke: '#5B8FF9' # Set column border/stroke color
               dataFields:
-                categoryX: _id # Set the category value to the field _id in the data
-                valueY: count # Set the value value to the field count in the data
+                categoryX: _id  # Set the category value to the field _id in the data
+                valueY: criticRating # Set the value value to the field  in the data
               columns:
-                tooltipText: 'Count: {valueY}' # Set a tooltipText
+                tooltipText: 'Critic: {valueY}'
+            - type: ColumnSeries 
+              name: Viewer Rating
+              fill: '#5AD8A6'
+              stroke: '#5AD8A6'
+              dataFields:
+                categoryX: _id
+                valueY: viewerRating
+              columns:
+                tooltipText: 'Viewer: {valueY}' # Set a tooltipText
+
+  - id: pie_chart_card
+    type: Card
+    layout:
+      span: 8
+    blocks:
+      - id: title
+        type: Title
+        properties:
+          content: Genre Counts
+          level: 4
+      - id: pie_chart
+        type: AmCharts4Pie
+        properties:
+          height: 400
+          data:
+            _request: scores_by_genre # Share the same request as the bar chart
+          innerRadius: 50% # Make the chart a donut chart
+          series:
+            - type: PieSeries
+              alignLabels: false  # Needed for bent labels
+              ticks:
+                disabled: true # Remove label ticks
+              labels:
+                bent: true
+                fontSize: 12
+                text: "{category}"
+              dataFields:
+                category: _id
+                value: count
 
 
-  # - id: pie_chart_card
-  #   type: Card
-  #   layout:
-  #     span: 8
-  #   blocks:
-  #     - id: pie_chart
-  #       type: AmCharts4Pie
-  #       properties:
-  #         height: 400
-  # - id: table_card
-  #   type: Card
-  #   blocks:
-  #     - id: table
-  #       type: AgGrid
+  - id: table_card
+    type: Card
+    blocks:
+      - id: title
+        type: Title
+        properties:
+          content: 100 Movies with Largest Difference between Critic and Viewer Ratings
+          level: 4
+      - id: table
+        type: AgGrid
+        properties:
+          theme: basic
+          rowData:
+            _request: top_100_movies
+          defaultColDef: # Define default column definitions that apply to all the defined columns
+            sortable: true # Enables sorting on the columns when the header is clicked
+            resizable: true # Enables resizing of column widths
+            filter: true # Enables filtering of the columns using agGrid's default filter
+          columnDefs: # Define all the columns
+            - headerName: Title # Display name
+              field: title # The field name in the data
+              width: 350
+            - headerName: Year
+              field: year
+              width: 100
+            - headerName: Viewer Rating
+              field: viewerRating
+              width: 160
+              type: numericColumn # Setting this aligns the number on the right
+              valueFormatter:
+                type: intlNumberFormat # Format the number with 1 decimal place
+                properties:
+                  options:
+                    maximumFractionDigits: 1
+            - headerName: Critic Rating
+              field: criticRating
+              width: 160
+              type: numericColumn
+              valueFormatter:
+                type: intlNumberFormat
+                properties:
+                  options:
+                    maximumFractionDigits: 1
+            - headerName: Viewer Reviews
+              field: viewerReviews
+              width: 160
+              type: numericColumn
+              valueFormatter:
+                type: intlNumberFormat # Format the number with 0 decimal places
+                properties:
+                  options:
+                    maximumFractionDigits: 0
+            - headerName: Critic Reviews
+              field: criticReviews
+              width: 160
+              type: numericColumn
+              valueFormatter:
+                type: intlNumberFormat
+                properties:
+                  options:
+                    maximumFractionDigits: 1
