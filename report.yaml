@@ -84,15 +84,20 @@ requests:
         - $limit: 100 # Only return the first 100 results
 
 blocks:
+  - id: title # Title on page
+    type: Title
+    properties:
+      content: Movie Critic and Viewer Ratings
+      level: 4
   - id: genre_counts_bar_chart_card
     type: Card
     layout:
       span: 16 # Make the card span 2 thirds of the screen
     blocks:
       - id: title # Add a title
-        type: Title
+        type: Markdown
         properties:
-          content: Comparison of Critic and Viewer Ratings by Genre 
+          content: "#### Comparison of Critic and Viewer Ratings by Genre"
           level: 4
       - id: genre_counts_bar_chart
         type: AmCharts4XY # AmCharts4XY is used for all charts with x and y axis
@@ -151,9 +156,9 @@ blocks:
       span: 8
     blocks:
       - id: title
-        type: Title
+        type: Markdown
         properties:
-          content: Genre Counts
+          content: "#### Genre Counts"
           level: 4
       - id: pie_chart
         type: AmCharts4Pie
@@ -188,10 +193,9 @@ blocks:
     type: Card
     blocks:
       - id: title
-        type: Title
+        type: Markdown
         properties:
-          content: 100 Movies with Largest Difference between Critic and Viewer Ratings
-          level: 4
+          content: "#### 100 Movies with Largest Difference between Critic and Viewer Ratings"
       - id: table
         type: AgGrid
         properties:
