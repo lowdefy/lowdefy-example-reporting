@@ -133,8 +133,8 @@ blocks:
           series:
             - type: ColumnSeries # Create a column series to show columns
               name: Critics Rating
-              fill: '#5B8FF9' # Set column fill color
-              stroke: '#5B8FF9' # Set column border/stroke color
+              fill: '#5D7092' # Set column fill color
+              stroke: '#5D7092' # Set column border/stroke color
               dataFields:
                 categoryX: _id  # Set the category value to the field _id in the data
                 valueY: criticRating # Set the value value to the field  in the data
@@ -181,12 +181,12 @@ blocks:
                 value: count
               colors: # Add custom colors
                 list:
-                  - '#5B8FF9'
-                  - '#5AD8A6'
-                  - '#5D7092'
-                  - '#F6BD16'
-                  - '#E8684A'
-                  - '#6DC8EC'
+                  - '#122C6A'
+                  - '#0044A4'
+                  - '#005BBF'
+                  - '#3874DB'
+                  - '#5A8DF8'
+                  - '#7EABFF'
 
 
   - id: table_card
