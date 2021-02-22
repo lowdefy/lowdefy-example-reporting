@@ -283,7 +283,7 @@ areas:
             properties:
               icon: GithubOutlined
               title: View App Source Code
-              type: defaultColDef
+              type: default
               shape: round
             events:
               onClick:

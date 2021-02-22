@@ -1,5 +1,7 @@
 # Lowdefy Reporting Example
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/51d48dcb-b42a-4d03-8740-2d8b861e4da9/deploy-status)](https://app.netlify.com/sites/lowdefy-example-reporting/deploys)
+
 > [View this example.](https://example-reporting.lowdefy.com)
 
 This example demonstrate useful patterns for building a BI report/dashboard pages in Lowdefy. It connects to a MongoDB database with the Atlas Movies sample dataset pre-loaded.
