@@ -4,7 +4,6 @@ properties:
   title: Report
 layout:
   contentGutter: 16 # Set a gutter of 16px between all the cards on the page
-
 requests:
   # Request for the bar and pie charts
   - id: scores_by_genre
@@ -25,7 +24,7 @@ requests:
                 - Action
         - $group:
             _id: $genres # Group data by the genre field
-              # Calculate the average IMDB, and Rotten Tomatoes viewer and critic ratings for each genre. 
+              # Calculate the average Rotten Tomatoes viewer and critic ratings for each genre. 
             viewerRating:
               $avg: $tomatoes.viewer.rating
             criticRating:
@@ -42,7 +41,7 @@ requests:
             count: -1 # Sort by descending count
 
   # Request for the table
-  - id: top_100_movies
+  - id: top_100_score_difference_movies
     type: MongoDBAggregation # MongoDB Aggregation to get the data
     connectionId: movies_mongodb
     properties:
@@ -82,6 +81,14 @@ requests:
         - $sort:
             difference: -1 # Sort by biggest difference
         - $limit: 100 # Only return the first 100 results
+events:
+  # A list of actions that gets completed when this page is first loaded. 
+  onInitAsync:
+    - id: fetch_data # Fetch the request data before the page renders in order to populate the charts
+      type: Request
+      params: 
+        - scores_by_genre 
+        - top_100_score_difference_movies
 
 blocks:
   - id: title # Title on page
@@ -91,16 +98,13 @@ blocks:
       level: 4
   - id: genre_counts_bar_chart_card
     type: Card
+    properties:
+      title: Comparison of Critic and Viewer Ratings by Genre
     layout:
       span: 16 # Make the card span 2 thirds of the screen
     blocks:
-      - id: title # Add a title
-        type: Markdown
-        properties:
-          content: "#### Comparison of Critic and Viewer Ratings by Genre"
-          level: 4
       - id: genre_counts_bar_chart
-        type: AmCharts4XY # AmCharts4XY is used for all charts with x and y axis
+        type: AmChartsXY # AmCharts4XY is used for all charts with x and y axis
         properties:
           data:
             _request: scores_by_genre # Use scores_by_genre request for chart data
@@ -117,7 +121,7 @@ blocks:
               renderer:
                 grid:
                   disabled: true # Disable vertical grid lines
-                minGridDistance: 20 # Reduce the minimum grid distance so that more category labels can be shown the x axis
+                minGridDistance: 20 # Reduce the minimum grid distance so that more category labels can be shown on the x axis
                 labels: # Rotate the labels
                   contentAlign: right # Align against x axis
                   rotation: -60
@@ -154,14 +158,11 @@ blocks:
     type: Card
     layout:
       span: 8
+    properties:
+      title: Genre Counts
     blocks:
-      - id: title
-        type: Markdown
-        properties:
-          content: "#### Genre Counts"
-          level: 4
       - id: pie_chart
-        type: AmCharts4Pie
+        type: AmChartsPie
         properties:
           height: 400
           data:
@@ -188,20 +189,17 @@ blocks:
                   - '#5A8DF8'
                   - '#7EABFF'
 
-
   - id: table_card
     type: Card
+    properties:
+      title: 100 Movies with Largest Difference between Critic and Viewer Ratings
     blocks:
-      - id: title
-        type: Markdown
-        properties:
-          content: "#### 100 Movies with Largest Difference between Critic and Viewer Ratings"
       - id: table
-        type: AgGrid
+        type: AgGridAlpine
         properties:
           theme: basic
           rowData:
-            _request: top_100_movies
+            _request: top_100_score_difference_movies
           defaultColDef: # Define default column definitions that apply to all the defined columns
             sortable: true # Enables sorting on the columns when the header is clicked
             resizable: true # Enables resizing of column widths
@@ -213,39 +211,63 @@ blocks:
             - headerName: Year
               field: year
               width: 100
-            - headerName: Viewer Rating
-              field: viewerRating
+            - headerName: Difference
+              field: difference
               width: 160
               type: numericColumn # Setting this aligns the number on the right
               valueFormatter:
-                type: intlNumberFormat # Format the number with 1 decimal place
-                properties:
-                  options:
-                    maximumFractionDigits: 1
+                _function: # Provide a fprmatter function to pretty render the data value.
+                  __format.intlNumberFormat:
+                    on:
+                      __args: 0.value
+                    params:
+                      options:
+                        minimumFractionDigits: 1 # Format the number with 1 decimal place
+            - headerName: Viewer Rating
+              field: viewerRating
+              width: 160
+              type: numericColumn 
+              valueFormatter:
+                _function:
+                  __format.intlNumberFormat:
+                    on: 
+                      __args: 0.value
+                    params:
+                      options:
+                        maximumFractionDigits: 1 
             - headerName: Critic Rating
               field: criticRating
               width: 160
               type: numericColumn
               valueFormatter:
-                type: intlNumberFormat
-                properties:
-                  options:
-                    maximumFractionDigits: 1
+                _function:
+                  __format.intlNumberFormat:
+                    on:
+                      __args: 0.value
+                    params:
+                      options:
+                        maximumFractionDigits: 1
             - headerName: Viewer Reviews
               field: viewerReviews
               width: 160
               type: numericColumn
               valueFormatter:
-                type: intlNumberFormat # Format the number with 0 decimal places
-                properties:
-                  options:
-                    maximumFractionDigits: 0
+                _function:
+                  __format.intlNumberFormat:
+                    on: 
+                      __args: 0.value
+                    params:
+                      options:
+                        maximumFractionDigits: 0
             - headerName: Critic Reviews
               field: criticReviews
               width: 160
               type: numericColumn
               valueFormatter:
-                type: intlNumberFormat
-                properties:
-                  options:
-                    maximumFractionDigits: 1
+                _function:
+                  __format.intlNumberFormat:
+                    on: 
+                      __args: 0.value
+                    params:
+                      options:
+                        maximumFractionDigits: 0  

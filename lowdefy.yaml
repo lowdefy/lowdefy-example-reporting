@@ -1,11 +1,19 @@
 
 name: Lowdefy Reporting Example
-version: 0.0.6
+lowdefy: 3.10.1
 licence: MIT
-description: |
-  This example show patterns that can be used to implement a BI report/dashboard.
 
-  It assumes that it is connected to a MongoDB database with the Atlas sample dataset loaded.
+# description
+# This example show patterns that can be used to implement a BI report/dashboard.
+# It assumes that it is connected to a MongoDB database with the Atlas sample dataset loaded.
+
+types:
+  AmChartsXY:
+    url: https://blocks-cdn.lowdefy.com/v3.10.1/blocks-amcharts/meta/AmChartsXY.json
+  AmChartsPie:
+    url: https://blocks-cdn.lowdefy.com/v3.10.1/blocks-amcharts/meta/AmChartsPie.json
+  AgGridAlpine:
+    url: https://blocks-cdn.lowdefy.com/v3.10.1/blocks-aggrid/meta/AgGridAlpine.json
 
 # Define all the data connections, in this case the brands and products MongoDB collections
 connections:
@@ -15,7 +23,7 @@ connections:
       databaseName: sample_mflix # The database name
       collection: movies # The collection name
       databaseUri:
-        _secret: lowdefy_examples_mdb # The database connection uri that is stored as a secret and accessed using the _secret operator
+        _secret: EXAMPLES_MDB # The database connection uri that is stored as a secret and accessed using the _secret operator
 
 # Menus used in the app can be listed here
 # By default, the menu with id default, or the first menu defined is used.
