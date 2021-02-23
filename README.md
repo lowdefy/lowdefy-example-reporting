@@ -4,22 +4,30 @@
 
 > [View this example.](https://example-reporting.lowdefy.com)
 
-This example demonstrate useful patterns for building a BI report/dashboard pages in Lowdefy. It connects to a MongoDB database with the Atlas Movies sample dataset pre-loaded.
+This example demonstrates useful patterns for building a BI report/dashboard pages in Lowdefy. It connects to a MongoDB database with the Atlas Movies sample dataset pre-loaded.
 
 This reporting example is deployed using [Netlify](https://docs.lowdefy.com/deployment).
 
-Three additional block types is loaded for this examples:
+Three additional block types are loaded for this example:
 
 - `AmChartsXY` and `AmChartsPie` from [@lowdefy/blocks-amcharts](https://github.com/lowdefy/blocks-amcharts).
 - `AgGridAlpine`, from [@lowdefy/blocks-aggrid](https://github.com/lowdefy/blocks-aggrid).
 
 ## Running this example
 
-- Create a [MongoDB Atlas](https://www.mongodb.com/try) free tier cluster and select to load the sample dataset.
-- Add a database user to the MongoDB database and generate a connection uri containing the database username and password. Be sure to create the database user with read privileges for the sample database. Read more about using [the Lowdefy MongoDB connector](https://docs.lowdefy.com/MongoDB).
+-  Create a MongoDB cluster and get a URI connection string:
+    - Create a free MongoDB database cluster hosted by [MongoDB Atlas](https://www.mongodb.com/try).
+    - Load the Atlas sample dataset.
+    - In the Database access section, create a database user with read access to any database (You can also specify the database as `sample_mflix`).
+    - In the main cluster view, click "connect", then "Connect you application". This will give a MongoDB URI connection string. Use the credentials you just created.
+    - You can read more about the [Lowdefy MongoDB connector](https://docs.lowdefy.com/MongoDB).
 - Clone this repository.
 - Create a `.env` file in your project folder and set your MongoDB database connector URI as a variable in the `.env` file: `LOWDEFY_SECRET_EXAMPLES_MDB="{{ your_mongodb_connection_uri }}"`
 - In the command console, navigate to your project folder and run the Lowdefy CLI: `npx lowdefy@latest dev`.
+
+## Deploying this example
+
+This simplest solution is to deploy this example to [Netlify](https://netlify.com). See [the Netlify Deployment instructions](https://docs.lowdefy.com/deployment) for more detail on how to deploy a Lowdefy app to Netlify.
 
 ## More Lowdefy resources
 
