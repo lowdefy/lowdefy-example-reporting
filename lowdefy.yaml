@@ -1,6 +1,5 @@
-
 name: Lowdefy Reporting Example
-lowdefy: 3.10.1
+lowdefy: 3.21.2
 licence: MIT
 
 # description
@@ -37,7 +36,7 @@ menus:
         properties:
           title: Report # Title to show on the menu
           icon: LineChartOutlined
- 
+
 # All the pages in the app are listed here
 # Instead of defining the page in the lowdefy.yaml file, it is defined in its own yaml file and referenced here
 pages:
