@@ -146,9 +146,6 @@ areas:
                 series:
                   - type: bar # Create a bar series to show columns
                     name: Critics Rating
-                    encode:
-                      x: _id # Set the category value to the field _id in the data
-                      y: criticRating # Set the value value to the field  in the data
                     data:
                       _array.map:
                         - _if_none:
@@ -173,6 +170,7 @@ areas:
                             itemStyle:
                               color: '#5AD8A6' # Set column fill color
                               borderColor: '#5AD8A6' # Set column border/stroke color
+
       - id: pie_chart_card
         type: Card
         layout:
@@ -180,33 +178,47 @@ areas:
         properties:
           title: Genre Counts
         blocks:
-          - id: pie_chart
-            type: AmChartsPie
+          - id: pie_echart
+            type: EChart # ECharts is used for all charts with x and y axis
+            loading:
+              type: Skeleton
+              properties:
+                height: 400
             properties:
               height: 400
-              data:
-                _request: scores_by_genre # Share the same request as the bar chart
-              innerRadius: 50% # Make the chart a donut chart
-              series:
-                - type: PieSeries
-                  alignLabels: false # Needed for bent labels
-                  ticks:
-                    disabled: true # Remove label ticks
-                  labels:
-                    bent: true
-                    fontSize: 12
-                    text: '{category}'
-                  dataFields:
-                    category: _id
-                    value: count
-                  colors: # Add custom colors
-                    list:
-                      - '#122C6A'
-                      - '#0044A4'
-                      - '#005BBF'
-                      - '#3874DB'
-                      - '#5A8DF8'
-                      - '#7EABFF'
+              option:
+                tooltip:
+                  trigger: axis
+                color:
+                  - '#122C6A'
+                  - '#0044A4'
+                  - '#005BBF'
+                  - '#3874DB'
+                  - '#5A8DF8'
+                  - '#7EABFF'
+                series:
+                  - type: pie # Create a bar series to show columns
+                    colorBy: 'data'
+                    radius:
+                      - '25%'
+                      - '50%'
+                    label:
+                      show: true
+                      position: 'outside'
+                      rotate: true
+                      fontSize: 12
+                    labelLine:
+                      show: false
+                    data:
+                      _array.map:
+                        - _if_none:
+                            - _request: scores_by_genre # Use scores_by_genre request for chart data
+                            - []
+                        - _function:
+                            name:
+                              __args: 0._id # Set the value value to the field in the data
+                            value:
+                              __args: 0.count # Set the value value to the field in the data
 
       - id: table_card
         type: Card
