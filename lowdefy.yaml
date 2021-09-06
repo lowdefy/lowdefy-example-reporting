@@ -7,8 +7,6 @@ licence: MIT
 # It assumes that it is connected to a MongoDB database with the Atlas sample dataset loaded.
 
 types:
-  AmChartsXY:
-    url: https://blocks-cdn.lowdefy.com/v3.10.1/blocks-amcharts/meta/AmChartsXY.json
   AmChartsPie:
     url: https://blocks-cdn.lowdefy.com/v3.10.1/blocks-amcharts/meta/AmChartsPie.json
   AgGridAlpine:
