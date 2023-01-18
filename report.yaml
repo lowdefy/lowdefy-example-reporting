@@ -23,9 +23,8 @@ requests:
                 - Thriller
                 - Action
         - $group:
-            _id:
-              $genres # Group data by the genre field
-              # Calculate the average Rotten Tomatoes viewer and critic ratings for each genre.
+            # Calculate the average Rotten Tomatoes viewer and critic ratings for each genre.
+            _id: $genres # Group data by the genre field
             viewerRating:
               $avg: $tomatoes.viewer.rating
             criticRating:
