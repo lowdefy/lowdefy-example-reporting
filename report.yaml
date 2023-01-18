@@ -23,13 +23,13 @@ requests:
                 - Thriller
                 - Action
         - $group:
+            # Calculate the average Rotten Tomatoes viewer and critic ratings for each genre.
             _id: $genres # Group data by the genre field
-              # Calculate the average Rotten Tomatoes viewer and critic ratings for each genre. 
             viewerRating:
               $avg: $tomatoes.viewer.rating
             criticRating:
               $avg: $tomatoes.critic.rating
-            count: 
+            count:
               $sum: 1 # Count the number of documents by summing 1 for every document
         - $addFields:
             # Multiply viewerRating by 2 as it is out of 5 not 10.
@@ -46,7 +46,7 @@ requests:
     connectionId: movies_mongodb
     properties:
       pipeline:
-        - $match: 
+        - $match:
             tomatoes.critic.numReviews: # Match where there are 20 or more critic reviews
               $gte: 20
             tomatoes.viewer.numReviews: # and 100 or more viewer reviews
@@ -82,12 +82,12 @@ requests:
         - $limit: 100 # Only return the first 100 results
 
 events:
-  # A list of actions that gets completed when this page is first loaded. 
+  # A list of actions that gets completed when this page is first loaded.
   onInitAsync:
     - id: fetch_data # Fetch the request data before the page renders in order to populate the charts
       type: Request
-      params: 
-        - scores_by_genre 
+      params:
+        - scores_by_genre
         - top_100_score_difference_movies
 
 areas:
@@ -142,11 +142,11 @@ areas:
                   fill: '#5D7092' # Set column fill color
                   stroke: '#5D7092' # Set column border/stroke color
                   dataFields:
-                    categoryX: _id  # Set the category value to the field _id in the data
+                    categoryX: _id # Set the category value to the field _id in the data
                     valueY: criticRating # Set the value value to the field  in the data
                   columns:
                     tooltipText: 'Critic: {valueY}'
-                - type: ColumnSeries 
+                - type: ColumnSeries
                   name: Viewer Rating
                   fill: '#5AD8A6'
                   stroke: '#5AD8A6'
@@ -172,13 +172,13 @@ areas:
               innerRadius: 50% # Make the chart a donut chart
               series:
                 - type: PieSeries
-                  alignLabels: false  # Needed for bent labels
+                  alignLabels: false # Needed for bent labels
                   ticks:
                     disabled: true # Remove label ticks
                   labels:
                     bent: true
                     fontSize: 12
-                    text: "{category}"
+                    text: '{category}'
                   dataFields:
                     category: _id
                     value: count
@@ -228,15 +228,15 @@ areas:
                 - headerName: Viewer Rating
                   field: viewerRating
                   width: 160
-                  type: numericColumn 
+                  type: numericColumn
                   valueFormatter:
                     _function:
                       __format.intlNumberFormat:
-                        on: 
+                        on:
                           __args: 0.value
                         params:
                           options:
-                            maximumFractionDigits: 1 
+                            maximumFractionDigits: 1
                 - headerName: Critic Rating
                   field: criticRating
                   width: 160
@@ -256,7 +256,7 @@ areas:
                   valueFormatter:
                     _function:
                       __format.intlNumberFormat:
-                        on: 
+                        on:
                           __args: 0.value
                         params:
                           options:
@@ -268,11 +268,11 @@ areas:
                   valueFormatter:
                     _function:
                       __format.intlNumberFormat:
-                        on: 
+                        on:
                           __args: 0.value
                         params:
                           options:
-                            maximumFractionDigits: 0 
+                            maximumFractionDigits: 0
   header:
     blocks:
       - id: affix
