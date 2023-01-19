@@ -1,19 +1,10 @@
-
 name: Lowdefy Reporting Example
-lowdefy: 3.10.1
+lowdefy: 4.0.0-alpha.37
 licence: MIT
 
 # description
 # This example show patterns that can be used to implement a BI report/dashboard.
 # It assumes that it is connected to a MongoDB database with the Atlas sample dataset loaded.
-
-types:
-  AmChartsXY:
-    url: https://blocks-cdn.lowdefy.com/v3.10.1/blocks-amcharts/meta/AmChartsXY.json
-  AmChartsPie:
-    url: https://blocks-cdn.lowdefy.com/v3.10.1/blocks-amcharts/meta/AmChartsPie.json
-  AgGridAlpine:
-    url: https://blocks-cdn.lowdefy.com/v3.10.1/blocks-aggrid/meta/AgGridAlpine.json
 
 # Define all the data connections, in this case the brands and products MongoDB collections
 connections:
@@ -36,8 +27,8 @@ menus:
         pageId: report # Id of the report page
         properties:
           title: Report # Title to show on the menu
-          icon: LineChartOutlined
- 
+          icon: AiOutlineLineChart
+
 # All the pages in the app are listed here
 # Instead of defining the page in the lowdefy.yaml file, it is defined in its own yaml file and referenced here
 pages:
