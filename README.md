@@ -8,11 +8,6 @@ This example demonstrates useful patterns for building a BI report/dashboard pag
 
 This reporting example is deployed using [Netlify](https://docs.lowdefy.com/deployment).
 
-Three additional block types are loaded for this example:
-
-- `AmChartsXY` and `AmChartsPie` from [@lowdefy/blocks-amcharts](https://github.com/lowdefy/blocks-amcharts).
-- `AgGridAlpine`, from [@lowdefy/blocks-aggrid](https://github.com/lowdefy/blocks-aggrid).
-
 ## Running this example
 
 -  Create a MongoDB cluster and get a URI connection string:

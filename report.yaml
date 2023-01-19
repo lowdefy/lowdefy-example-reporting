@@ -23,13 +23,13 @@ requests:
                 - Thriller
                 - Action
         - $group:
+            # Calculate the average Rotten Tomatoes viewer and critic ratings for each genre.
             _id: $genres # Group data by the genre field
-              # Calculate the average Rotten Tomatoes viewer and critic ratings for each genre. 
             viewerRating:
               $avg: $tomatoes.viewer.rating
             criticRating:
               $avg: $tomatoes.critic.rating
-            count: 
+            count:
               $sum: 1 # Count the number of documents by summing 1 for every document
         - $addFields:
             # Multiply viewerRating by 2 as it is out of 5 not 10.
@@ -46,7 +46,7 @@ requests:
     connectionId: movies_mongodb
     properties:
       pipeline:
-        - $match: 
+        - $match:
             tomatoes.critic.numReviews: # Match where there are 20 or more critic reviews
               $gte: 20
             tomatoes.viewer.numReviews: # and 100 or more viewer reviews
@@ -82,12 +82,12 @@ requests:
             difference: -1 # Sort by biggest difference
         - $limit: 100 # Only return the first 100 results
 events:
-  # A list of actions that gets completed when this page is first loaded. 
+  # A list of actions that gets completed when this page is first loaded.
   onInitAsync:
     - id: fetch_data # Fetch the request data before the page renders in order to populate the charts
       type: Request
-      params: 
-        - scores_by_genre 
+      params:
+        - scores_by_genre
         - top_100_score_difference_movies
 
 areas:
@@ -106,55 +106,59 @@ areas:
           span: 16 # Make the card span 2 thirds of the screen
         blocks:
           - id: genre_counts_bar_chart
-            type: AmChartsXY # AmCharts4XY is used for all charts with x and y axis
+            type: EChart
             properties:
-              data:
-                _request: scores_by_genre # Use scores_by_genre request for chart data
               height: 400
-              legend:
-                type: Legend # Add legend
-                markers:
-                  width: 20 # Make markers smaller
-                  height: 20
-              xAxes:
-                - type: CategoryAxis # Add a CategoryAxis for the x axis
-                  dataFields:
-                    category: _id # Add the dataField so the CategoryAxis can determine the categories
-                  renderer:
-                    grid:
-                      disabled: true # Disable vertical grid lines
-                    minGridDistance: 20 # Reduce the minimum grid distance so that more category labels can be shown on the x axis
-                    labels: # Rotate the labels
-                      contentAlign: right # Align against x axis
-                      rotation: -60
-                      fontSize: 12
-                      verticalCenter: middle # Set the rotation center point
-                      horizontalCenter: right # Set the rotation center point
-              yAxes:
-                - type: ValueAxis # Add a ValueAxis for the y axis
-                  title:
-                    text: Rating # Give the x axis a title
-                  renderer:
-                    minGridDistance: 20
-              series:
-                - type: ColumnSeries # Create a column series to show columns
-                  name: Critics Rating
-                  fill: '#5D7092' # Set column fill color
-                  stroke: '#5D7092' # Set column border/stroke color
-                  dataFields:
-                    categoryX: _id  # Set the category value to the field _id in the data
-                    valueY: criticRating # Set the value value to the field  in the data
-                  columns:
-                    tooltipText: 'Critic: {valueY}'
-                - type: ColumnSeries 
-                  name: Viewer Rating
-                  fill: '#5AD8A6'
-                  stroke: '#5AD8A6'
-                  dataFields:
-                    categoryX: _id
-                    valueY: viewerRating
-                  columns:
-                    tooltipText: 'Viewer: {valueY}' # Set a tooltipText
+              option:
+                dataset:
+                  source:
+                    _request: scores_by_genre # Use scores_by_genre request for chart data
+                legend:
+                  show: true
+                  bottom: 0 # Display legend below chart
+                grid:
+                  bottom: 100
+                tooltip:
+                  show: true
+                  trigger: item
+                xAxis:
+                  type: category # Add a category for the x axis
+                  data:
+                    _array.map: # Map over the data and get the list of _ids which will serve as our categories
+                      - _request: scores_by_genre
+                      - _function:
+                          __args: 0._id
+                  axisLabel:
+                    rotate: 60 # Rotate the labels
+                yAxis:
+                  - type: value # Add a value for the y axis
+                    name: Rating # Give the y axis a title
+                    nameRotate: 90 ß
+                    nameLocation: middle
+                    nameGap: 40
+                    min: # Set minimum y value
+                      _function:
+                        __math.floor:
+                          __if_none:
+                            - __args: 0.min
+                            - 0
+                series:
+                  - type: bar # Create a column series to show columns
+                    name: Critics Rating
+                    itemStyle:
+                      color: '#5D7092' # Set column fill color
+                      borderColor: '#5D7092' # Set column border color
+                    encode:
+                      x: _id # Set the category value to the field _id in the data
+                      y: criticRating # Set the value value to the field in the data
+                  - type: bar
+                    name: Viewer Rating
+                    itemStyle:
+                      color: '#5AD8A6'
+                      borderColor: '#5AD8A6'
+                    encode:
+                      x: _id
+                      y: viewerRating
 
       - id: pie_chart_card
         type: Card
@@ -164,26 +168,27 @@ areas:
           title: Genre Counts
         blocks:
           - id: pie_chart
-            type: AmChartsPie
+            type: EChart
             properties:
               height: 400
-              data:
-                _request: scores_by_genre # Share the same request as the bar chart
-              innerRadius: 50% # Make the chart a donut chart
-              series:
-                - type: PieSeries
-                  alignLabels: false  # Needed for bent labels
-                  ticks:
-                    disabled: true # Remove label ticks
-                  labels:
-                    bent: true
-                    fontSize: 12
-                    text: "{category}"
-                  dataFields:
-                    category: _id
-                    value: count
-                  colors: # Add custom colors
-                    list:
+              option:
+                series:
+                  - name: genre_counts
+                    type: pie
+                    radius: [30%, 50%] # Make the chart a donut chart
+                    label:
+                      fontSize: 12
+                    data:
+                      _mql.aggregate: # Format data to have fields name and value
+                        on:
+                          _request: scores_by_genre # Share the same request as the bar chart
+                        pipeline:
+                          - $project:
+                              name: $_id
+                              value: $count
+                          - $sort:
+                              value: -1
+                    color: # Add custom colors
                       - '#122C6A'
                       - '#0044A4'
                       - '#005BBF'
@@ -209,7 +214,8 @@ areas:
               columnDefs: # Define all the columns
                 - headerName: Title # Display name
                   field: title # The field name in the data
-                  width: 350
+                  minWidth: 350
+                  flex: 1 0 auto
                 - headerName: Year
                   field: year
                   width: 100
@@ -219,7 +225,7 @@ areas:
                   type: numericColumn # Setting this aligns the number on the right
                   valueFormatter:
                     _function: # Provide a fprmatter function to pretty render the data value.
-                      __format.intlNumberFormat:
+                      __intl.numberFormat:
                         on:
                           __args: 0.value
                         params:
@@ -228,22 +234,22 @@ areas:
                 - headerName: Viewer Rating
                   field: viewerRating
                   width: 160
-                  type: numericColumn 
+                  type: numericColumn
                   valueFormatter:
                     _function:
-                      __format.intlNumberFormat:
-                        on: 
+                      __intl.numberFormat:
+                        on:
                           __args: 0.value
                         params:
                           options:
-                            maximumFractionDigits: 1 
+                            maximumFractionDigits: 1
                 - headerName: Critic Rating
                   field: criticRating
                   width: 160
                   type: numericColumn
                   valueFormatter:
                     _function:
-                      __format.intlNumberFormat:
+                      __intl.numberFormat:
                         on:
                           __args: 0.value
                         params:
@@ -255,8 +261,8 @@ areas:
                   type: numericColumn
                   valueFormatter:
                     _function:
-                      __format.intlNumberFormat:
-                        on: 
+                      __intl.numberFormat:
+                        on:
                           __args: 0.value
                         params:
                           options:
@@ -267,12 +273,12 @@ areas:
                   type: numericColumn
                   valueFormatter:
                     _function:
-                      __format.intlNumberFormat:
-                        on: 
+                      __intl.numberFormat:
+                        on:
                           __args: 0.value
                         params:
                           options:
-                            maximumFractionDigits: 0 
+                            maximumFractionDigits: 0
   header:
     blocks:
       - id: affix
@@ -281,7 +287,7 @@ areas:
           - id: source_button
             type: Button
             properties:
-              icon: GithubOutlined
+              icon: AiOutlineGithub
               title: View App Source Code
               type: default
               shape: round
