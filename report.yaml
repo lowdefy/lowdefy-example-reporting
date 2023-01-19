@@ -77,10 +77,10 @@ requests:
                       - $tomatoes.viewer.rating
                       - 2
                   - $tomatoes.critic.rating
-
         - $sort:
             difference: -1 # Sort by biggest difference
         - $limit: 100 # Only return the first 100 results
+
 events:
   # A list of actions that gets completed when this page is first loaded.
   onInitAsync:
