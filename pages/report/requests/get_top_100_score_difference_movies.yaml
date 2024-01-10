@@ -1,0 +1,40 @@
+# Request for the table
+id: get_top_100_score_difference_movies
+type: MongoDBAggregation # MongoDB Aggregation to get the data
+connectionId: movies_mongodb
+properties:
+  pipeline:
+    - $match:
+        tomatoes.critic.numReviews: # Match where there are 20 or more critic reviews
+          $gte: 20
+        tomatoes.viewer.numReviews: # and 100 or more viewer reviews
+          $gte: 100
+        genres: # Only look at top 6 genres
+          $in:
+            - Drama
+            - Comedy
+            - Romance
+            - Crime
+            - Thriller
+            - Action
+    - $project: # Include fields we want to show in the table
+        title: 1
+        year: 1
+        rated: 1
+        viewerRating: # Multiply viewerRating by 2 as it is out of 5 not 10.
+          $multiply:
+            - $tomatoes.viewer.rating
+            - 2
+        criticRating: $tomatoes.critic.rating
+        viewerReviews: $tomatoes.viewer.numReviews
+        criticReviews: $tomatoes.critic.numReviews
+        difference: # Calculate the difference between the critic and viewer scores
+          $abs: # Take the absolute (positive) value
+            $subtract:
+              - $multiply:
+                  - $tomatoes.viewer.rating
+                  - 2
+              - $tomatoes.critic.rating
+    - $sort:
+        difference: -1 # Sort by biggest difference
+    - $limit: 100 # Only return the first 100 results

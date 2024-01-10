@@ -1,0 +1,34 @@
+# Request for the bar and pie charts
+id: get_scores_by_genre
+type: MongoDBAggregation # MongoDB Aggregation to get the data
+connectionId: movies_mongodb
+properties:
+  pipeline:
+    - $unwind:
+        path: $genres # Genres is an array, so unwind to create 1 document for every array entry
+    - $match: # Only look at top 6 genres
+        genres:
+          $in:
+            - Drama
+            - Comedy
+            - Romance
+            - Crime
+            - Thriller
+            - Action
+    - $group:
+        # Calculate the average Rotten Tomatoes viewer and critic ratings for each genre.
+        _id: $genres # Group data by the genre field
+        viewerRating:
+          $avg: $tomatoes.viewer.rating
+        criticRating:
+          $avg: $tomatoes.critic.rating
+        count:
+          $sum: 1 # Count the number of documents by summing 1 for every document
+    - $addFields:
+        # Multiply viewerRating by 2 as it is out of 5 not 10.
+        viewerRating:
+          $multiply:
+            - $viewerRating
+            - 2
+    - $sort:
+        count: -1 # Sort by descending count

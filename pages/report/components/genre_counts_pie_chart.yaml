@@ -1,0 +1,28 @@
+id: genre_counts_pie_chart
+type: EChart
+properties:
+  height: 400
+  option:
+    series:
+      - name: genre_counts
+        type: pie
+        radius: [30%, 50%] # Make the chart a donut chart
+        label:
+          fontSize: 12
+        data:
+          _mql.aggregate: # Format data to have fields name and value
+            on:
+              _request: get_scores_by_genre # Share the same request as the bar chart
+            pipeline:
+              - $project:
+                  name: $_id
+                  value: $count
+              - $sort:
+                  value: -1
+        color: # Add custom colors
+          - "#122C6A"
+          - "#0044A4"
+          - "#005BBF"
+          - "#3874DB"
+          - "#5A8DF8"
+          - "#7EABFF"

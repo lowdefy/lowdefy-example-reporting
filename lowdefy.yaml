@@ -1,6 +1,6 @@
 name: Lowdefy Reporting Example
 lowdefy: 4.0.0-rc.15
-licence: MIT
+license: MIT
 
 # description
 # This example show patterns that can be used to implement a BI report/dashboard.
@@ -32,4 +32,4 @@ menus:
 # All the pages in the app are listed here
 # Instead of defining the page in the lowdefy.yaml file, it is defined in its own yaml file and referenced here
 pages:
-  - _ref: report.yaml
+  - _ref: pages/report/report.yaml
