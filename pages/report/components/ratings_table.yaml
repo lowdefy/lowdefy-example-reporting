@@ -1,0 +1,78 @@
+id: ratings_table
+type: AgGridAlpine
+properties:
+  theme: basic
+  rowData:
+    _request: get_top_100_score_difference_movies
+  defaultColDef: # Define default column definitions that apply to all the defined columns
+    sortable: true # Enables sorting on the columns when the header is clicked
+    resizable: true # Enables resizing of column widths
+    filter: true # Enables filtering of the columns using agGrid's default filter
+  columnDefs: # Define all the columns
+    - headerName: Title # Display name
+      field: title # The field name in the data
+      minWidth: 350
+      flex: 1 0 auto
+    - headerName: Year
+      field: year
+      width: 100
+    - headerName: Difference
+      field: difference
+      width: 160
+      type: numericColumn # Setting this aligns the number on the right
+      valueFormatter:
+        _function: # Provide a fprmatter function to pretty render the data value.
+          __intl.numberFormat:
+            on:
+              __args: 0.value
+            params:
+              options:
+                minimumFractionDigits: 1 # Format the number with 1 decimal place
+    - headerName: Viewer Rating
+      field: viewerRating
+      width: 160
+      type: numericColumn
+      valueFormatter:
+        _function:
+          __intl.numberFormat:
+            on:
+              __args: 0.value
+            params:
+              options:
+                maximumFractionDigits: 1
+    - headerName: Critic Rating
+      field: criticRating
+      width: 160
+      type: numericColumn
+      valueFormatter:
+        _function:
+          __intl.numberFormat:
+            on:
+              __args: 0.value
+            params:
+              options:
+                maximumFractionDigits: 1
+    - headerName: Viewer Reviews
+      field: viewerReviews
+      width: 160
+      type: numericColumn
+      valueFormatter:
+        _function:
+          __intl.numberFormat:
+            on:
+              __args: 0.value
+            params:
+              options:
+                maximumFractionDigits: 0
+    - headerName: Critic Reviews
+      field: criticReviews
+      width: 160
+      type: numericColumn
+      valueFormatter:
+        _function:
+          __intl.numberFormat:
+            on:
+              __args: 0.value
+            params:
+              options:
+                maximumFractionDigits: 0

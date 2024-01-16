@@ -1,0 +1,54 @@
+id: genre_counts_bar_chart
+type: EChart
+properties:
+  height: 400
+  option:
+    dataset:
+      source:
+        _request: get_scores_by_genre # Use get_scores_by_genre request for chart data
+    legend:
+      show: true
+      bottom: 0 # Display legend below chart
+    grid:
+      bottom: 100
+    tooltip:
+      show: true
+      trigger: item
+    xAxis:
+      type: category # Add a category for the x axis
+      data:
+        _array.map: # Map over the data and get the list of _ids which will serve as our categories
+          - _request: get_scores_by_genre
+          - _function:
+              __args: 0._id
+      axisLabel:
+        rotate: 60 # Rotate the labels
+    yAxis:
+      - type: value # Add a value for the y axis
+        name: Rating # Give the y axis a title
+        nameRotate: 90 ß
+        nameLocation: middle
+        nameGap: 40
+        min: # Set minimum y value
+          _function:
+            __math.floor:
+              __if_none:
+                - __args: 0.min
+                - 0
+    series:
+      - type: bar # Create a column series to show columns
+        name: Critics Rating
+        itemStyle:
+          color: "#5D7092" # Set column fill color
+          borderColor: "#5D7092" # Set column border color
+        encode:
+          x: _id # Set the category value to the field _id in the data
+          y: criticRating # Set the value value to the field in the data
+      - type: bar
+        name: Viewer Rating
+        itemStyle:
+          color: "#5AD8A6"
+          borderColor: "#5AD8A6"
+        encode:
+          x: _id
+          y: viewerRating

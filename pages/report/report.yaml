@@ -1,0 +1,74 @@
+id: report
+type: PageHeaderMenu
+properties:
+  title: Report
+layout:
+  contentGutter: 16 # Set a gutter of 16px between all the cards on the page
+requests:
+  # Requests are referenced from their own yaml files in the requests folder
+  - _ref: pages/report/requests/get_scores_by_genre.yaml
+  - _ref: pages/report/requests/get_top_100_score_difference_movies.yaml
+
+events:
+  # A list of actions that gets completed when this page is first loaded.
+  onInitAsync:
+    - id: fetch_data # Fetch the request data before the page renders in order to populate the charts
+      type: Request
+      params:
+        - get_scores_by_genre
+        - get_top_100_score_difference_movies
+
+areas:
+  content:
+    blocks:
+      - id: title # Title on page
+        type: Title
+        properties:
+          content: Movie Critic and Viewer Ratings
+          level: 4
+      - id: genre_counts_bar_chart_card
+        type: Card
+        properties:
+          title: Comparison of Critic and Viewer Ratings by Genre
+        layout:
+          span: 16 # Make the card span 2 thirds of the screen
+        blocks:
+          # The bar chart is defined in its own yaml file and referenced here
+          - _ref: pages/report/components/genre_counts_bar_chart.yaml
+
+      - id: pie_chart_card
+        type: Card
+        layout:
+          span: 8
+        properties:
+          title: Genre Counts
+        blocks:
+          # The pie chart is defined in its own yaml file and referenced here
+          - _ref: pages/report/components/genre_counts_pie_chart.yaml
+
+      - id: table_card
+        type: Card
+        properties:
+          title: 100 Movies with Largest Difference between Critic and Viewer Ratings
+        blocks:
+          # The table is defined in its own yaml file and referenced here
+          - _ref: pages/report/components/ratings_table.yaml
+  header:
+    blocks:
+      - id: affix
+        type: Affix
+        blocks:
+          - id: source_button
+            type: Button
+            properties:
+              icon: AiOutlineGithub
+              title: View App Source Code
+              type: default
+              shape: round
+            events:
+              onClick:
+                - id: link_repo
+                  type: Link
+                  params:
+                    url: https://github.com/lowdefy/lowdefy-example-reporting
+                    newTab: true
